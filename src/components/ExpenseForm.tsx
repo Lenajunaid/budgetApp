@@ -3,26 +3,27 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-const incomeSchema = z.object({
-  source: z.string().min(1, "Please enter income source"),
-  amount: z.number().positive("Amount must be more than zero"),
-  date: z.string().min(1, "Date is required"),
+const validationSchema = z.object({
+  source: z.string().min(1, "Please enter the expense source"),
+  amount: z.number().positive("Please enter an amount greater than zero"),
+  date: z.string().min(1, "Please pick a date"),
 });
 
-type IncomeData = z.infer<typeof incomeSchema>;
+type ExpenseData = z.infer<typeof validationSchema>;
 
 type Props = {
-  onAddIncome: (income: IncomeData) => void;
+  onAddExpense: (expense: ExpenseData) => void;
 };
 
-const IncomeForm: React.FC<Props> = ({ onAddIncome }) => {
+const ExpenseForm: React.FC<Props> = ({ onAddExpense }) => {
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<IncomeData>({
-    resolver: zodResolver(incomeSchema),
+  } = useForm<ExpenseData>({
+    resolver: zodResolver(validationSchema),
+    mode: "onBlur",
     defaultValues: {
       source: "",
       amount: undefined,
@@ -30,15 +31,15 @@ const IncomeForm: React.FC<Props> = ({ onAddIncome }) => {
     },
   });
 
-  const submitIncome = (data: IncomeData) => {
-    onAddIncome(data);
+  const submitHandler = (data: ExpenseData) => {
+    onAddExpense(data);
     reset();
   };
 
   return (
-    <form onSubmit={handleSubmit(submitIncome)}>
+    <form onSubmit={handleSubmit(submitHandler)}>
       <input
-        placeholder="Income source"
+        placeholder="Expense source"
         {...register("source")}
       />
       {errors.source && <p style={{ color: "red" }}>{errors.source.message}</p>}
@@ -46,7 +47,7 @@ const IncomeForm: React.FC<Props> = ({ onAddIncome }) => {
       <input
         type="number"
         step="any"
-        placeholder="Income amount"
+        placeholder="Expense amount"
         {...register("amount", { valueAsNumber: true })}
       />
       {errors.amount && <p style={{ color: "red" }}>{errors.amount.message}</p>}
@@ -57,9 +58,9 @@ const IncomeForm: React.FC<Props> = ({ onAddIncome }) => {
       />
       {errors.date && <p style={{ color: "red" }}>{errors.date.message}</p>}
 
-      <button type="submit">Add Income</button>
+      <button type="submit">Add Expense</button>
     </form>
   );
 };
 
-export default IncomeForm;
+export default ExpenseForm;
